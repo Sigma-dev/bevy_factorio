@@ -3,14 +3,21 @@ use bevy::{math::VectorSpace, prelude::*};
 pub use visualizer::*;
 pub mod visualizer;
 
-#[derive(Resource, PartialEq)]
+#[derive(Resource, PartialEq, Clone, Debug)]
 pub struct GridTreeChunk {
-    chunks: Vec<Option<GridTreeChunk>>,
+    chunks: Vec<TreeChunk>,
     size: u32,
     position: IVec2
 }
 
-#[derive(Copy, Clone)]
+#[derive(Clone, Debug, PartialEq)]
+enum TreeChunk {
+    Chunk(GridTreeChunk),
+    Empty,
+    Grid(Entity)
+}
+
+#[derive(Copy, Clone, Debug)]
 enum ChunkOrder {
     TopLeft = 0,
     TopRight = 1,
@@ -21,7 +28,7 @@ enum ChunkOrder {
 impl Default for GridTreeChunk {
     fn default() -> Self {
         Self {
-            chunks: vec![None, None, None, None],
+            chunks: vec![ChunkOrder::Empty; 4],
             size: 512,
             position: IVec2::ZERO
         }
@@ -31,7 +38,7 @@ impl Default for GridTreeChunk {
 impl GridTreeChunk {
     fn new(size: u32, pos: IVec2) -> Self {
         Self {
-            chunks: vec![None, None, None, None],
+            chunks: vec![ChunkOrder::Empty; 4],
             size: size,
             position: pos
         }
@@ -44,6 +51,10 @@ impl GridTreeChunk {
         }
         let chunk = self.get_chunk_at(pos);
         chunk.store_grid_position(pos);
+    }
+
+    pub fn get_entity_at(&mut self, pos: IVec2) {
+
     }
 
     fn get_chunk_at(&mut self, pos: IVec2) -> &mut GridTreeChunk {
@@ -63,15 +74,16 @@ impl GridTreeChunk {
     }
 
     fn get_or_create(&mut self, chunk: ChunkOrder) -> &mut GridTreeChunk {
+        println!("chunk: {chunk:?}");
         let size = self.size as i32;
         let new_pos = match chunk {
             ChunkOrder::TopLeft => self.position + IVec2::new(-size / 4, size / 4),
             ChunkOrder::TopRight => self.position + IVec2::new(size / 4, size / 4),
-            ChunkOrder::BotLeft => -self.position + IVec2::new(-size / 4, -size / 4),
+            ChunkOrder::BotLeft => self.position + IVec2::new(-size / 4, -size / 4),
             ChunkOrder::BotRight => self.position + IVec2::new(size / 4, -size / 4),
         };
-        if  self.chunks[chunk as usize].is_none() {
-            self.chunks[chunk as usize] = Some(GridTreeChunk::new(self.size / 2, new_pos));
+        if  self.chunks[chunk as usize] == TreeChunk::Empty {
+            self.chunks[chunk as usize] = Chunk(GridTreeChunk::new(self.size / 2, new_pos));
         }
         return self.chunks[chunk as usize].as_mut().unwrap()
     }
