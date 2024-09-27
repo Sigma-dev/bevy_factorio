@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{gizmos::grid, prelude::*};
 use grid_tree::*;
 
 mod grid_tree;
@@ -30,7 +30,8 @@ fn update(
 ) {
     let pos = IVec2::new(34, 206);
     if mouse_buttons.just_pressed(MouseButton::Left) {
-        let square = GridSquare { bl_position: grid_mouse_position.grid_position, size: 6};
+        let Some(grid_position) = grid_mouse_position.grid_position else { return; };
+        let square = GridSquare { bl_position: grid_position, size: 6};
         let entity = commands.spawn((
             SpatialBundle::default(),
             GridEntity { shape: square.clone() }
@@ -41,6 +42,4 @@ fn update(
     if keys.just_pressed(KeyCode::KeyR) {
         println!("Get at: {:?}", tree.get_entity_at(pos));
     }
-
-    println!("{}", grid_mouse_position.grid_position);
 }

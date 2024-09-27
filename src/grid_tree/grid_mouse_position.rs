@@ -6,13 +6,13 @@ pub struct GridMousePositionPlugin {
 
 #[derive(Resource)]
 pub struct GridMousePosition {
-	pub grid_position: IVec2,
+	pub grid_position: Option<IVec2>,
 	scale: f32,
 }
 
 impl GridMousePosition {
 	fn new(scale: f32) -> Self {
-		Self { grid_position: IVec2::ZERO, scale }
+		Self { grid_position: None, scale }
 	}
 }
 
@@ -27,12 +27,12 @@ fn update_mouse_position(
     q_windows: Query<&Window, With<PrimaryWindow>>,
 	mut grid_mouse_position: ResMut<GridMousePosition>
 ) {
-	let window = q_windows.single();
-    if let Some(mut position) = window.cursor_position() {
+	let window: &Window = q_windows.single();
+    if let Some(position) = window.cursor_position() {
 		let mut pos_from_middle = position - window.size() / 2.;
 		pos_from_middle.y *= -1.;
-		grid_mouse_position.grid_position = (pos_from_middle * grid_mouse_position.scale).as_ivec2();
+		grid_mouse_position.grid_position = Some((pos_from_middle * grid_mouse_position.scale).as_ivec2());
     } else {
-        println!("Cursor is not in the game window.");
+		grid_mouse_position.grid_position = None;
     }
 }

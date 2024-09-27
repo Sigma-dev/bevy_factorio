@@ -105,7 +105,6 @@ impl GridTreeChunk {
 
     fn init_chunk(&mut self, dir: ChunkOrder, entity: Entity) -> &mut TreeChunk {
         let new_size = (self.size / 2) as i32;
-        println!("Size: {new_size}");
         if new_size == 0 {
             exit(30);
         }
