@@ -3,7 +3,9 @@ use core::{panic};
 use bevy::{prelude::*};
 
 pub use visualizer::*;
+pub use grid_entity::*;
 pub mod visualizer;
+pub mod grid_entity;
 
 #[derive(Resource, PartialEq, Clone, Debug)]
 pub struct GridTreeChunk {
@@ -27,6 +29,10 @@ enum ChunkOrder {
     BotRight = 3
 }
 
+trait GridShape {
+	fn get_grid_coordinates(&self) -> Vec<IVec2>;
+}
+
 impl Default for GridTreeChunk {
     fn default() -> Self {
         Self {
@@ -48,7 +54,6 @@ impl GridTreeChunk {
 
     pub fn store_grid_position(&mut self, pos: IVec2) {
         if self.size == 1 {
-            println!("Yes");
             return;
         }
         let tree_chunk = self.get_chunk_at(pos);
@@ -60,9 +65,14 @@ impl GridTreeChunk {
     }
 
     pub fn get_entity_at(&mut self, pos: IVec2) {
-
+        let tree_chunk = self.get_chunk_at(pos);
     }
 
+    pub fn insert(&mut self, shape: &impl GridShape) {
+        for coor in shape.get_grid_coordinates() {
+            self.store_grid_position(coor);
+        }
+    }
     fn get_chunk_at(&mut self, pos: IVec2) -> &mut TreeChunk {
         if pos.y >= self.position.y {
             if pos.x >= self.position.x {

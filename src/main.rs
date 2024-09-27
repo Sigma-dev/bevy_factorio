@@ -22,10 +22,20 @@ fn setup(
 }
 
 fn update(
+    mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
     mut tree: ResMut<GridTreeChunk>
 ) {
     if keys.just_pressed(KeyCode::KeyT) {
         tree.store_grid_position(IVec2::new(-105, -13));
+    }
+
+    if keys.just_pressed(KeyCode::KeyP) {
+        let square = GridSquare { tl_position: IVec2::new(34, 206), size: 14};
+        tree.insert(&square);
+        commands.spawn((
+            SpatialBundle::default(),
+            GridEntity { shape: square }
+        ));
     }
 }
