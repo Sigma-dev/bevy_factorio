@@ -26,16 +26,17 @@ fn update(
     keys: Res<ButtonInput<KeyCode>>,
     mut tree: ResMut<GridTreeChunk>
 ) {
-    if keys.just_pressed(KeyCode::KeyT) {
-        tree.store_grid_position(IVec2::new(-105, -13));
+    let pos = IVec2::new(34, 206);
+    if keys.just_pressed(KeyCode::KeyP) {
+        let square = GridSquare { tl_position: pos, size: 14};
+        let entity = commands.spawn((
+            SpatialBundle::default(),
+            GridEntity { shape: square.clone() }
+        )).id();
+        tree.insert(entity, &square);
     }
 
-    if keys.just_pressed(KeyCode::KeyP) {
-        let square = GridSquare { tl_position: IVec2::new(34, 206), size: 14};
-        tree.insert(&square);
-        commands.spawn((
-            SpatialBundle::default(),
-            GridEntity { shape: square }
-        ));
+    if keys.just_pressed(KeyCode::KeyR) {
+        println!("Get at: {:?}", tree.get_entity_at(pos));
     }
 }

@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use super::GridShape;
 
+#[derive(Clone)]
 pub struct GridSquare {
 	pub tl_position: IVec2,
 	pub size: u32,

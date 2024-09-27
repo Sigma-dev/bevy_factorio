@@ -19,6 +19,8 @@ fn draw_tree(
     for chunk in &tree.chunks {
         draw_chunk(&mut gizmos, &chunk);
     }
+
+    
 }
 
 fn draw_chunk(

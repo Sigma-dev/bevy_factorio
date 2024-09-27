@@ -1,4 +1,5 @@
 use core::{panic};
+use std::process::exit;
 
 use bevy::{prelude::*};
 
@@ -52,56 +53,73 @@ impl GridTreeChunk {
         }
     }
 
-    pub fn store_grid_position(&mut self, pos: IVec2) {
-        if self.size == 1 {
-            return;
-        }
-        let tree_chunk = self.get_chunk_at(pos);
-        match tree_chunk {
-            TreeChunk::Chunk(grid_tree_chunk) => grid_tree_chunk.store_grid_position(pos),
-            TreeChunk::Empty => { panic!() },
-            TreeChunk::Grid(_) => {},
+    pub fn get_entity_at(&mut self, pos: IVec2) -> Option<Entity> {
+        let dir: ChunkOrder = self.determine_direction(pos);
+        let mut chunk = &mut self.chunks[dir as usize];
+        
+        match chunk {
+            TreeChunk::Chunk(grid_tree_chunk) => grid_tree_chunk.get_entity_at(pos),
+            TreeChunk::Empty => None,
+            TreeChunk::Grid(entity) => Some(*entity),
         }
     }
 
-    pub fn get_entity_at(&mut self, pos: IVec2) {
-        let tree_chunk = self.get_chunk_at(pos);
-    }
-
-    pub fn insert(&mut self, shape: &impl GridShape) {
+    pub fn insert(&mut self, entity: Entity, shape: &impl GridShape) {
         for coor in shape.get_grid_coordinates() {
-            self.store_grid_position(coor);
+            self.store_grid_position(coor, entity);
         }
     }
-    fn get_chunk_at(&mut self, pos: IVec2) -> &mut TreeChunk {
+
+    fn determine_direction(&self, pos: IVec2) -> ChunkOrder{
         if pos.y >= self.position.y {
             if pos.x >= self.position.x {
-                self.get_or_create(ChunkOrder::TopRight)
+                ChunkOrder::TopRight
             } else {
-                self.get_or_create(ChunkOrder::TopLeft)
+                ChunkOrder::TopLeft
             }
         } else {
             if pos.x >= self.position.x {
-                self.get_or_create(ChunkOrder::BotRight)
+                ChunkOrder::BotRight
             } else {
-                self.get_or_create(ChunkOrder::BotLeft)
+                ChunkOrder::BotLeft
             }
         }
     }
 
-    fn get_or_create(&mut self, chunk: ChunkOrder) -> &mut TreeChunk {
-        println!("chunk: {chunk:?}");
-        let size = self.size as i32;
-        let new_pos = match chunk {
-            ChunkOrder::TopLeft => self.position + IVec2::new(-size / 4, size / 4),
-            ChunkOrder::TopRight => self.position + IVec2::new(size / 4, size / 4),
-            ChunkOrder::BotLeft => self.position + IVec2::new(-size / 4, -size / 4),
-            ChunkOrder::BotRight => self.position + IVec2::new(size / 4, -size / 4),
-        };
-        if  self.chunks[chunk as usize] == TreeChunk::Empty {
-            self.chunks[chunk as usize] = TreeChunk::Chunk(GridTreeChunk::new(self.size / 2, new_pos));
+    pub fn store_grid_position(&mut self, pos: IVec2, entity: Entity) {
+        let dir: ChunkOrder = self.determine_direction(pos);
+        let mut chunk = &mut self.chunks[dir as usize];
+
+        match chunk {
+            TreeChunk::Chunk(grid_tree_chunk) => grid_tree_chunk.store_grid_position(pos, entity),
+            TreeChunk::Empty => {
+                if let TreeChunk::Chunk(new_grid_tree_chunk) = self.init_chunk(dir, entity) {
+                    new_grid_tree_chunk.store_grid_position(pos, entity);
+                }
+            }
+            TreeChunk::Grid(_) => chunk = &mut TreeChunk::Grid(entity),
         }
-        return &mut self.chunks[chunk as usize];
+    }
+
+    fn init_chunk(&mut self, dir: ChunkOrder, entity: Entity) -> &mut TreeChunk {
+        let new_size = (self.size / 2) as i32;
+        println!("Size: {new_size}");
+        if new_size == 0 {
+            exit(30);
+        }
+        self.chunks[dir as usize] = 
+        if new_size == 1 {
+            TreeChunk::Grid(entity)
+        } else {
+            let offset = match dir {
+                ChunkOrder::TopLeft => IVec2::new(-new_size, new_size),
+                ChunkOrder::TopRight => IVec2::new(new_size, new_size),
+                ChunkOrder::BotLeft => IVec2::new(-new_size, -new_size),
+                ChunkOrder::BotRight => IVec2::new(new_size, -new_size),
+            };
+            TreeChunk::Chunk(GridTreeChunk::new(new_size as u32, self.position + offset / 2))
+        };
+        return &mut self.chunks[dir as usize];
     }
 
     fn is_empty(&self) -> bool {
