@@ -13,10 +13,6 @@ fn main() {
         .run();
 }
 
-
-
-
-
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -30,6 +26,6 @@ fn update(
     mut tree: ResMut<GridTreeChunk>
 ) {
     if keys.just_pressed(KeyCode::KeyT) {
-        tree.store_grid_position(IVec2::new(5, 5));
+        tree.store_grid_position(IVec2::new(-105, -13));
     }
 }

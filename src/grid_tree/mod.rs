@@ -1,4 +1,6 @@
-use bevy::{math::VectorSpace, prelude::*};
+use core::{panic};
+
+use bevy::{prelude::*};
 
 pub use visualizer::*;
 pub mod visualizer;
@@ -28,7 +30,7 @@ enum ChunkOrder {
 impl Default for GridTreeChunk {
     fn default() -> Self {
         Self {
-            chunks: vec![ChunkOrder::Empty; 4],
+            chunks: vec![TreeChunk::Empty; 4],
             size: 512,
             position: IVec2::ZERO
         }
@@ -38,7 +40,7 @@ impl Default for GridTreeChunk {
 impl GridTreeChunk {
     fn new(size: u32, pos: IVec2) -> Self {
         Self {
-            chunks: vec![ChunkOrder::Empty; 4],
+            chunks: vec![TreeChunk::Empty; 4],
             size: size,
             position: pos
         }
@@ -49,15 +51,19 @@ impl GridTreeChunk {
             println!("Yes");
             return;
         }
-        let chunk = self.get_chunk_at(pos);
-        chunk.store_grid_position(pos);
+        let tree_chunk = self.get_chunk_at(pos);
+        match tree_chunk {
+            TreeChunk::Chunk(grid_tree_chunk) => grid_tree_chunk.store_grid_position(pos),
+            TreeChunk::Empty => { panic!() },
+            TreeChunk::Grid(_) => {},
+        }
     }
 
     pub fn get_entity_at(&mut self, pos: IVec2) {
 
     }
 
-    fn get_chunk_at(&mut self, pos: IVec2) -> &mut GridTreeChunk {
+    fn get_chunk_at(&mut self, pos: IVec2) -> &mut TreeChunk {
         if pos.y >= self.position.y {
             if pos.x >= self.position.x {
                 self.get_or_create(ChunkOrder::TopRight)
@@ -73,7 +79,7 @@ impl GridTreeChunk {
         }
     }
 
-    fn get_or_create(&mut self, chunk: ChunkOrder) -> &mut GridTreeChunk {
+    fn get_or_create(&mut self, chunk: ChunkOrder) -> &mut TreeChunk {
         println!("chunk: {chunk:?}");
         let size = self.size as i32;
         let new_pos = match chunk {
@@ -83,12 +89,12 @@ impl GridTreeChunk {
             ChunkOrder::BotRight => self.position + IVec2::new(size / 4, -size / 4),
         };
         if  self.chunks[chunk as usize] == TreeChunk::Empty {
-            self.chunks[chunk as usize] = Chunk(GridTreeChunk::new(self.size / 2, new_pos));
+            self.chunks[chunk as usize] = TreeChunk::Chunk(GridTreeChunk::new(self.size / 2, new_pos));
         }
-        return self.chunks[chunk as usize].as_mut().unwrap()
+        return &mut self.chunks[chunk as usize];
     }
 
     fn is_empty(&self) -> bool {
-        self.chunks == vec![None, None, None, None]
+        self.chunks == vec![TreeChunk::Empty, TreeChunk::Empty, TreeChunk::Empty, TreeChunk::Empty]
     }
 }

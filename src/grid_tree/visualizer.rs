@@ -1,5 +1,7 @@
 use bevy::{math::VectorSpace, prelude::*};
 
+use crate::grid_tree::TreeChunk;
+
 use super::GridTreeChunk;
 
 pub struct GridTreeVisualizerPlugin;
@@ -21,12 +23,16 @@ fn draw_tree(
 
 fn draw_chunk(
     gizmos: &mut Gizmos,
-    chunk_option: &Option<GridTreeChunk>
+    tree_chunk: &TreeChunk
 ) {
-    let Some(chunk) = chunk_option else {return;};
-    println!("{}", chunk.position);
-    gizmos.rect_2d(chunk.position.as_vec2(), 0., Vec2::splat(chunk.size as f32), Color::srgb(1., 0., 0.));
-    for ch in &chunk.chunks {
-        draw_chunk(gizmos, &ch);
+    match tree_chunk {
+        TreeChunk::Chunk(grid_tree_chunk) => {
+            gizmos.rect_2d(grid_tree_chunk.position.as_vec2(), 0., Vec2::splat(grid_tree_chunk.size as f32), Color::srgb(1., 0., 0.));
+            for ch in &grid_tree_chunk.chunks {
+                draw_chunk(gizmos, &ch);
+            }
+        },
+        TreeChunk::Empty => {},
+        TreeChunk::Grid(_) => {},
     }
 }
