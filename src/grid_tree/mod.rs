@@ -3,8 +3,10 @@ use std::process::exit;
 
 use bevy::{prelude::*};
 
+pub use grid_mouse_position::*;
 pub use visualizer::*;
 pub use grid_entity::*;
+pub mod grid_mouse_position;
 pub mod visualizer;
 pub mod grid_entity;
 
@@ -30,7 +32,7 @@ enum ChunkOrder {
     BotRight = 3
 }
 
-trait GridShape {
+pub trait GridShape {
 	fn get_grid_coordinates(&self) -> Vec<IVec2>;
 }
 

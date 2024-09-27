@@ -6,7 +6,7 @@ mod grid_tree;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins(GridTreeVisualizerPlugin)
+        .add_plugins((GridMousePositionPlugin {scale: 1.}, GridTreeVisualizerPlugin))
         .add_systems(Startup, setup)
         .add_systems(Update, update)
         .insert_resource(GridTreeChunk::default())
@@ -24,11 +24,13 @@ fn setup(
 fn update(
     mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
-    mut tree: ResMut<GridTreeChunk>
+    mut tree: ResMut<GridTreeChunk>,
+    grid_mouse_position: Res<GridMousePosition>,
+    mouse_buttons: Res<ButtonInput<MouseButton>>,
 ) {
     let pos = IVec2::new(34, 206);
-    if keys.just_pressed(KeyCode::KeyP) {
-        let square = GridSquare { tl_position: pos, size: 14};
+    if mouse_buttons.just_pressed(MouseButton::Left) {
+        let square = GridSquare { bl_position: grid_mouse_position.grid_position, size: 6};
         let entity = commands.spawn((
             SpatialBundle::default(),
             GridEntity { shape: square.clone() }
@@ -39,4 +41,6 @@ fn update(
     if keys.just_pressed(KeyCode::KeyR) {
         println!("Get at: {:?}", tree.get_entity_at(pos));
     }
+
+    println!("{}", grid_mouse_position.grid_position);
 }
