@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use super::CHUNK_SIZE;
 
+#[derive(Debug)]
 pub(crate) struct GridChunk {
     grid: [[Option<Entity>; CHUNK_SIZE]; CHUNK_SIZE]
 }

@@ -30,7 +30,7 @@ fn update_mouse_position(
 	let window: &Window = q_windows.single();
     if let Some(position) = window.cursor_position() {
 		let mut pos_from_middle = position - window.size() / 2.;
-		pos_from_middle.y *= -1.;
+		//pos_from_middle.y *= -1.;
 		grid_mouse_position.grid_position = Some((pos_from_middle * grid_mouse_position.scale).as_ivec2());
     } else {
 		grid_mouse_position.grid_position = None;
