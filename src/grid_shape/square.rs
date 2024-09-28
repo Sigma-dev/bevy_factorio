@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use crate::grid_shape::GridShape;
-
 #[derive(Clone)]
 pub struct GridSquare {
 	pub bl_position: IVec2,
@@ -18,10 +16,4 @@ impl GridShape for GridSquare {
 		}
 		return res;
 	}
-}
-
-#[derive(Component)]
-pub struct GridEntity
-{
-	pub shape: GridSquare
 }

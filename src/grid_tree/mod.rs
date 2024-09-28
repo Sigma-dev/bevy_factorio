@@ -6,6 +6,8 @@ use bevy::{prelude::*};
 pub use grid_mouse_position::*;
 pub use visualizer::*;
 pub use grid_entity::*;
+
+use crate::grid_shape::GridShape;
 pub mod grid_mouse_position;
 pub mod visualizer;
 pub mod grid_entity;
@@ -30,10 +32,6 @@ enum ChunkOrder {
     TopRight = 1,
     BotLeft = 2,
     BotRight = 3
-}
-
-pub trait GridShape {
-	fn get_grid_coordinates(&self) -> Vec<IVec2>;
 }
 
 impl Default for GridTreeChunk {
