@@ -53,10 +53,25 @@ impl ChunkedGrid {
         self.chunks.get_mut(&self.grid_pos_to_chunk_coordinates(grid_pos))
     }
 
-    pub fn insert_shape(&mut self, shape: &impl GridShape, entity: Entity,) {
+    pub fn can_insert_shape(&mut self, shape: &impl GridShape) -> bool {
+        for coor in shape.get_grid_coordinates() {
+            if self.get_entity_at(coor).is_some() {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    pub fn try_insert_shape(&mut self, shape: &impl GridShape, entity: Entity,) -> Result<(), ()> {
+        for coor in shape.get_grid_coordinates() {
+            if self.get_entity_at(coor).is_some() {
+                return Err(());
+            }
+        }
         for coor in shape.get_grid_coordinates() {
             self.insert(coor, entity);
         }
+        Ok(())
     }
 
     pub fn grid_pos_to_chunk_coordinates(&self, grid_pos: IVec2) -> IVec2 {
