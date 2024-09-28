@@ -1,6 +1,6 @@
-use bevy::{gizmos::grid, math::VectorSpace, prelude::*};
+use bevy::prelude::*;
 
-use super::{grid_chunk::GridChunk, ChunkedGrid, CHUNK_SIZE};
+use super::world_chunked_grid::WorldChunkedGrid;
 
 pub struct ChunkedTreeVisualizerPlugin;
 
@@ -11,19 +11,19 @@ impl Plugin for ChunkedTreeVisualizerPlugin {
 }
 
 fn draw_grid(
-    grid: Res<ChunkedGrid>,
+    world_grid: Res<WorldChunkedGrid>,
     mut gizmos: Gizmos
 ) {
-    gizmos.rect_2d(Vec2::ZERO + Vec2::splat((CHUNK_SIZE / 2) as f32), 0., Vec2::splat(CHUNK_SIZE as f32), Color::srgb(0., 1., 0.));
-    for (pos, chunk) in grid.chunks.iter() {
-        draw_chunk(&mut gizmos, *pos, &chunk);
+    gizmos.rect_2d(world_grid.get_grid_world_pos(IVec2::ZERO), 0., Vec2::splat(world_grid.get_grid_world_size()), Color::srgb(0., 1., 0.));
+    for (pos, _) in world_grid.grid.chunks.iter() {
+        draw_chunk(&mut gizmos, *pos, &world_grid);
     }
 }
 
 fn draw_chunk(
     gizmos: &mut Gizmos,
     pos: IVec2,
-    grid_chunk: &GridChunk
+    world_grid: &Res<WorldChunkedGrid>,
 ) {
-    gizmos.rect_2d((pos * CHUNK_SIZE as i32).as_vec2() + Vec2::splat((CHUNK_SIZE / 2) as f32) , 0., Vec2::splat(CHUNK_SIZE as f32), Color::srgb(1., 0., 0.));
+    gizmos.rect_2d(world_grid.get_grid_world_pos(pos), 0., Vec2::splat(world_grid.get_grid_world_size()), Color::srgb(1., 0., 0.));
 }

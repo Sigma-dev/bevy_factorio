@@ -7,7 +7,7 @@ pub(crate) const CHUNK_SIZE: usize = 32;
 
 pub mod grid_chunk;
 pub mod visualizer;
-pub mod grid_mouse_position;
+pub mod world_chunked_grid;
 
 #[derive(Resource, Default)]
 pub struct ChunkedGrid {
@@ -23,7 +23,6 @@ impl ChunkedGrid {
             chunk.insert(relative_pos, entity)
         } else {
             let mut grid = GridChunk::default();
-            println!("DADA2 {} {}", pos, relative_pos);
             grid.insert(relative_pos, entity);
             self.chunks.insert(chunk_pos, grid);
         }
@@ -31,10 +30,10 @@ impl ChunkedGrid {
 
     pub fn get_chunk_pos(&self, pos: IVec2) -> IVec2 {
         let mut chunk_pos = pos / 32;
-        if (pos.x < 0) {
+        if pos.x < 0 {
             chunk_pos.x -= 1;
         } 
-        if (pos.y < 0) {
+        if pos.y < 0 {
             chunk_pos.y -= 1;
         } 
         chunk_pos
