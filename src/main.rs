@@ -2,7 +2,7 @@ use bevy::{ecs::world, gizmos::grid, math::VectorSpace, prelude::*, render::came
 use chunked_grid::{visualizer::ChunkedTreeVisualizerPlugin, world_chunked_grid::{self, WorldChunkedGrid, WorldChunkedGridPlugin}, ChunkedGrid};
 use conveyor_belt::{ConveyorBelt, ConveyorBeltPlugin};
 use grid_tree::*;
-use item::{storage::{ExternalItemStorage, InternalItemStorage, ItemStoragePlugin}, taker::{ItemTaker, ItemTakerPlugin}, Item};
+use item::{renderer::ItemRendererPlugin, storage::{ExternalItemStorage, InternalItemStorage, ItemStoragePlugin}, taker::{ItemTaker, ItemTakerPlugin}, Item};
 
 mod grid_tree;
 mod chunked_grid;
@@ -13,7 +13,7 @@ mod conveyor_belt;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins((WorldChunkedGridPlugin {element_size: 0.5}, ChunkedTreeVisualizerPlugin, ConveyorBeltPlugin, ItemTakerPlugin, ItemStoragePlugin))
+        .add_plugins((WorldChunkedGridPlugin {element_size: 0.5}, ChunkedTreeVisualizerPlugin, ConveyorBeltPlugin, ItemTakerPlugin, ItemStoragePlugin, ItemRendererPlugin))
         .add_systems(Startup, setup)
         .add_systems(Update, update)
         .run();
