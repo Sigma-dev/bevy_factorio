@@ -1,5 +1,5 @@
+use item::{renderer::ItemRendererPlugin, storage::{ExternalItemStorage, InternalItemStorage, ItemStoragePlugin}, taker::{GridDirection, ItemTaker, ItemTakerPlugin}, Item};
 use std::f32::consts::PI;
-
 use bevy::{ecs::{system::EntityCommands, world}, gizmos::grid, math::VectorSpace, prelude::*, render::camera::ScalingMode};
 use chunked_grid::{visualizer::ChunkedTreeVisualizerPlugin, world_chunked_grid::{self, WorldChunkedGrid, WorldChunkedGridPlugin}, ChunkedGrid};
 use conveyor_belt::{ConveyorBelt, ConveyorBeltPlugin};
@@ -11,11 +11,12 @@ mod chunked_grid;
 mod grid_shape;
 mod item;
 mod conveyor_belt;
+mod building;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins((WorldChunkedGridPlugin {element_size: 0.5}, ChunkedTreeVisualizerPlugin, ConveyorBeltPlugin, ItemTakerPlugin, ItemStoragePlugin, ItemRendererPlugin, generator::plugin))
+        .add_plugins((WorldChunkedGridPlugin {element_size: 0.5}, ChunkedTreeVisualizerPlugin, ConveyorBeltPlugin, ItemTakerPlugin, ItemStoragePlugin, ItemRendererPlugin, generator::plugin, GridPlacerPlugin, BuildingSpawnPlugin))
         .add_systems(Startup, setup)
         .add_systems(Update, update)
         .run();
@@ -39,11 +40,9 @@ fn setup(
 }
 
 fn update(
-    mut commands: Commands,
+    mut building_writer: EventWriter<SetPlacerBuilding>,
     keys: Res<ButtonInput<KeyCode>>,
     mut world_chunked_grid: ResMut<WorldChunkedGrid>,
-    mouse_buttons: Res<ButtonInput<MouseButton>>,
-    assets: Res<AssetServer>,
     mut gizmos: Gizmos 
 ) {
     if keys.just_pressed(KeyCode::KeyY) {
