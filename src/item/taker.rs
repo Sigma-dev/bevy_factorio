@@ -1,24 +1,69 @@
+use std::f32::consts::PI;
+
 use bevy::{ecs::{entity, intern::Internable}, prelude::*};
 
 use crate::{chunked_grid::world_chunked_grid::WorldChunkedGrid, GridEntity};
 
 use super::{storage::{ExternalItemStorage, InternalItemStorage, StorageUpdate }, Item};
 
-pub enum Direction {
+#[derive(Clone, Copy, Debug)]
+pub enum CardinalDirection {
     Up,
     Right,
+    Down,
     Left,
-    Down
+}
+
+impl CardinalDirection {
+    pub fn as_vec2(&self) -> Vec2 {
+        self.as_ivec2().as_vec2()
+    }
+
+    pub fn as_ivec2(&self) -> IVec2 {
+        match self {
+            CardinalDirection::Up => IVec2::new(0, 1),
+            CardinalDirection::Right => IVec2::new(1, 0),
+            CardinalDirection::Down => IVec2::new(0, -1),
+            CardinalDirection::Left => IVec2::new(-1, 0),
+        }
+    }
+
+    pub fn as_rad(&self) -> f32 {
+        match self {
+            CardinalDirection::Up => 0.,
+            CardinalDirection::Right => PI / 2.,
+            CardinalDirection::Down => PI,
+            CardinalDirection::Left =>  3. * PI / 2.,
+        }
+    }
+
+    pub fn rotate(&mut self) {
+        *self = match self {
+            CardinalDirection::Up => CardinalDirection::Right,
+            CardinalDirection::Right => CardinalDirection::Down,
+            CardinalDirection::Down => CardinalDirection::Left,
+            CardinalDirection::Left => CardinalDirection::Up,
+        }
+    }
+
+    pub fn flipped(&self) -> CardinalDirection {
+        match self {
+            CardinalDirection::Up => CardinalDirection::Down,
+            CardinalDirection::Right => CardinalDirection::Left,
+            CardinalDirection::Down => CardinalDirection::Up,
+            CardinalDirection::Left => CardinalDirection::Right,
+        }
+    }
 }
 
 #[derive(Component)]
 pub struct ItemTaker {
     source_storage: Option<Entity>,
-    source_direction: Direction,
+    source_direction: CardinalDirection,
 }
 
 impl ItemTaker {
-    pub fn new(source_direction: Direction) -> ItemTaker {
+    pub fn new(source_direction: CardinalDirection) -> ItemTaker {
         ItemTaker { source_storage: None, source_direction, }
     }
 }
@@ -49,12 +94,8 @@ fn setup_taker(
 ) {
     let Ok((mut taker, grid_entity)) = taker_query.get_mut(taker_entity) else { return; };
     let pos = grid_entity.grid_position;
-    let offset = match taker.source_direction {
-        Direction::Up => IVec2::new(0, 1),
-        Direction::Right => IVec2::new(1, 0),
-        Direction::Left => IVec2::new(-1, 0),
-        Direction::Down => IVec2::new(0, -1),
-    };
+    println!("Taking from {:?}", taker.source_direction);
+    let offset = taker.source_direction.as_ivec2();
     let Some(storage_entity) = world_grid.grid.get_entity_at(pos + offset) else { return; };
     println!("Click");
     taker.source_storage = Some(storage_entity);
