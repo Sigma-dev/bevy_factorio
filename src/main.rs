@@ -1,10 +1,10 @@
-use item::{renderer::ItemRendererPlugin, storage::{ExternalItemStorage, InternalItemStorage, ItemStoragePlugin}, taker::{GridDirection, ItemTaker, ItemTakerPlugin}, Item};
+use building::BuildingSpawnPlugin;
+use item::{generator::{self, ItemGenerator}, renderer::ItemRendererPlugin, storage::{ExternalItemStorage, InternalItemStorage, ItemStoragePlugin}, taker::{CardinalDirection, ItemTaker, ItemTakerPlugin}, Item};
 use std::f32::consts::PI;
 use bevy::{ecs::{system::EntityCommands, world}, gizmos::grid, math::VectorSpace, prelude::*, render::camera::ScalingMode};
-use chunked_grid::{visualizer::ChunkedTreeVisualizerPlugin, world_chunked_grid::{self, WorldChunkedGrid, WorldChunkedGridPlugin}, ChunkedGrid};
+use chunked_grid::{placer::{GridPlacerPlugin, SetPlacerBuilding}, visualizer::ChunkedTreeVisualizerPlugin, world_chunked_grid::{self, WorldChunkedGrid, WorldChunkedGridPlugin}, ChunkedGrid};
 use conveyor_belt::{ConveyorBelt, ConveyorBeltPlugin};
 use grid_tree::*;
-use item::{generator::{self, ItemGenerator}, renderer::ItemRendererPlugin, storage::{ExternalItemStorage, InternalItemStorage, ItemStoragePlugin}, taker::{CardinalDirection, ItemTaker, ItemTakerPlugin}, Item};
 
 mod grid_tree;
 mod chunked_grid;
@@ -42,6 +42,7 @@ fn setup(
 fn update(
     mut building_writer: EventWriter<SetPlacerBuilding>,
     keys: Res<ButtonInput<KeyCode>>,
+    mouse_buttons: Res<ButtonInput<MouseButton>>,
     mut world_chunked_grid: ResMut<WorldChunkedGrid>,
     mut gizmos: Gizmos 
 ) {
@@ -55,15 +56,16 @@ fn update(
         world_chunked_grid.grid_pointer_direction.rotate()
     }
     let Some(grid_position) = world_chunked_grid.grid_mouse_position else { return; };
-    if mouse_buttons.just_pressed(MouseButton::Left) {
+    if keys.just_pressed(KeyCode::Digit1) {
         //try_place(&mut commands, &assets,  grid_position,&mut world_chunked_grid, "models/buildings/conveyor_belt/conveyor_belt.glb#Scene0".to_owned(), 1);
-        try_place_conveyor_belt(&mut commands, &assets, grid_position, world_chunked_grid.grid_pointer_direction, &mut world_chunked_grid);
+        building_writer.send(SetPlacerBuilding { building: building::Building::ConveyorBelt });
+        //try_place_conveyor_belt(&mut commands, &assets, grid_position, world_chunked_grid.grid_pointer_direction, &mut world_chunked_grid);
     }
     if keys.just_pressed(KeyCode::KeyA) {
-        try_place(&mut commands, &assets,  grid_position, world_chunked_grid.grid_pointer_direction, &mut world_chunked_grid, "models/buildings/factory/factory.glb#Scene0".to_owned(), 3);
+       // try_place(&mut commands, &assets,  grid_position, world_chunked_grid.grid_pointer_direction, &mut world_chunked_grid, "models/buildings/factory/factory.glb#Scene0".to_owned(), 3);
     }
     if keys.just_pressed(KeyCode::KeyG) {
-        try_place_generator(&mut commands, &assets, grid_position, world_chunked_grid.grid_pointer_direction, &mut world_chunked_grid);
+      //  try_place_generator(&mut commands, &assets, grid_position, world_chunked_grid.grid_pointer_direction, &mut world_chunked_grid);
     }
 }
 

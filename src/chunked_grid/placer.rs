@@ -1,12 +1,14 @@
+use std::f32::consts::PI;
+
 use bevy::{gizmos::grid, prelude::*};
 
-use crate::{building::{Building, SpawnBuilding}, item::taker::GridDirection};
+use crate::{building::{Building, SpawnBuilding}, item::taker::CardinalDirection};
 
 use super::world_chunked_grid::WorldChunkedGrid;
 
 #[derive(Component)]
 pub struct GridPlacer {
-    pub orientation: GridDirection,
+    pub orientation: CardinalDirection,
     building: Option<Building>
 }
 
@@ -30,13 +32,13 @@ fn spawn_placer(
     mut assets: Res<AssetServer>,
     mut gltf_assets: Res<Assets<Gltf>>
 ) {
-    let mut gltf = assets.load("models/buildings/conveyor_belt/conveyor_belt.glb#Scene0");
     commands.spawn((
         SceneBundle {
-            scene: gltf_assets.get(&mut gltf).unwrap().named_scenes["0"].clone(),
+            scene: assets.load("models/buildings/conveyor_belt/conveyor_belt.glb#Scene0"),
+
             ..default()
         },
-        GridPlacer { orientation: GridDirection::Down, building: None }
+        GridPlacer { orientation: CardinalDirection::Down, building: None }
     ));
 }
 
@@ -55,7 +57,7 @@ fn handle_inputs(
         }
         let Some(building) = placer.building.clone() else { continue; };
         if keys.just_pressed(KeyCode::KeyR) {
-            placer.orientation = placer.orientation.rotate_counter_clockwise();
+            placer.orientation.rotate();
         }
         if mouse_buttons.just_pressed(MouseButton::Left) {
             spawn_writer.send(SpawnBuilding { building: building, grid_position: mouse_pos, orientation: placer.orientation.clone() });
@@ -70,9 +72,9 @@ fn handle_grid_placer(
 ) {
     let (mut placer_transform, mut visibility, placer) = placer_query.single_mut();
     let Some(mouse_pos) = world_grid.grid_mouse_position else { return; };
-    let grid_pos = world_grid.grid_to_world_pos(mouse_pos);
+    let grid_pos = world_grid.grid_to_world_pos(mouse_pos.as_vec2());
     placer_transform.translation = Vec3::new(grid_pos.x, 0., grid_pos.y);
-    placer_transform.rotation = Quat::from_euler(EulerRot::XYZ, 0., placer.orientation.to_radians(), 0.);
+    placer_transform.rotation = Quat::from_euler(EulerRot::XYZ, 0., -placer.orientation.as_rad() + PI, 0.);
     if placer.building.is_none() {
         *visibility = Visibility::Hidden;
     } else {

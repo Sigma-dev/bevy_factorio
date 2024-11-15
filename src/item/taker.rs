@@ -46,6 +46,15 @@ impl CardinalDirection {
         }
     }
 
+    pub fn rotate_ccw(&mut self) {
+        *self = match self {
+            CardinalDirection::Up => CardinalDirection::Left,
+            CardinalDirection::Right => CardinalDirection::Up,
+            CardinalDirection::Down => CardinalDirection::Right,
+            CardinalDirection::Left => CardinalDirection::Down,
+        }
+    }
+
     pub fn flipped(&self) -> CardinalDirection {
         match self {
             CardinalDirection::Up => CardinalDirection::Down,
