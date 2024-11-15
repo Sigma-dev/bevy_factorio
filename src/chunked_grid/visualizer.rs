@@ -27,7 +27,7 @@ fn draw_chunk(
     world_grid: &Res<WorldChunkedGrid>,
 ) {
    // gizmos.rect(world_grid.get_grid_world_pos(pos), 0., Vec2::splat(world_grid.get_grid_world_size()), Color::srgb(1., 0., 0.));
-   draw_rect(gizmos, world_grid.grid_to_world_pos(pos), world_grid.element_size, Color::srgb(1., 0., 0.));
+   draw_rect(gizmos, world_grid.grid_to_world_pos(pos.as_vec2()), world_grid.element_size, Color::srgb(1., 0., 0.));
 }
 
 fn draw_rect(gizmos: &mut Gizmos, pos: Vec2, size: f32, color: impl Into<Color>) {

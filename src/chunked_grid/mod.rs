@@ -1,3 +1,5 @@
+use core::panic;
+
 use bevy::{prelude::*, utils::HashMap};
 use grid_chunk::GridChunk;
 
@@ -63,16 +65,15 @@ impl ChunkedGrid {
         return true;
     }
 
-    pub fn try_insert_shape(&mut self, shape: &impl GridShape, entity: Entity,) -> Result<(), ()> {
+    pub fn insert_shape(&mut self, shape: &impl GridShape, entity: Entity) {
         for coor in shape.get_grid_coordinates() {
             if self.get_entity_at(coor).is_some() {
-                return Err(());
+                panic!("Couldn't insert shape")
             }
         }
         for coor in shape.get_grid_coordinates() {
             self.insert(coor, entity);
         }
-        Ok(())
     }
 
     pub fn grid_pos_to_chunk_coordinates(&self, grid_pos: IVec2) -> IVec2 {
