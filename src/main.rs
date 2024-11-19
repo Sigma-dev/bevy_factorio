@@ -1,5 +1,6 @@
 use building::BuildingSpawnPlugin;
 use item::{generator::{self, ItemGenerator}, renderer::ItemRendererPlugin, storage::{ExternalItemStorage, InternalItemStorage, ItemStoragePlugin}, taker::{CardinalDirection, ItemTaker, ItemTakerPlugin}, Item};
+use pooled_rendering::PooledRenderingPlugin;
 use std::f32::consts::PI;
 use bevy::{ecs::{system::EntityCommands, world}, gizmos::grid, math::VectorSpace, prelude::*, render::camera::ScalingMode};
 use chunked_grid::{placer::{GridPlacerPlugin, SetPlacerBuilding}, visualizer::ChunkedTreeVisualizerPlugin, world_chunked_grid::{self, WorldChunkedGrid, WorldChunkedGridPlugin}, ChunkedGrid};
@@ -12,11 +13,12 @@ mod grid_shape;
 mod item;
 mod conveyor_belt;
 mod building;
+mod pooled_rendering;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins((WorldChunkedGridPlugin {element_size: 0.5}, ChunkedTreeVisualizerPlugin, ConveyorBeltPlugin, ItemTakerPlugin, ItemStoragePlugin, ItemRendererPlugin, generator::plugin, GridPlacerPlugin, BuildingSpawnPlugin))
+        .add_plugins((WorldChunkedGridPlugin {element_size: 0.5}, ChunkedTreeVisualizerPlugin, ConveyorBeltPlugin, ItemTakerPlugin, ItemStoragePlugin, ItemRendererPlugin, generator::plugin, GridPlacerPlugin, BuildingSpawnPlugin, PooledRenderingPlugin::new(5000)))
         .add_systems(Startup, setup)
         .add_systems(Update, update)
         .run();
@@ -37,6 +39,18 @@ fn setup(
         .into(),
         ..default()
     });
+
+    commands.spawn(
+        DirectionalLightBundle {
+            directional_light: DirectionalLight {
+                //color: Color::srgb(0.2, 0.05, 0.1),
+                illuminance: 2000.,
+                ..default()
+            },
+            transform: Transform::looking_at(Transform::default(), -Vec3::Y + Vec3::X, Vec3::Z),
+            ..default()
+        }
+    );
 }
 
 fn update(

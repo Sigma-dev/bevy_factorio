@@ -25,7 +25,7 @@ fn render_items(
     mut render_items: ResMut<ItemRenderer>
 ) {
     for render_item in &render_items.items {
-        gizmos.sphere(render_item.position, Quat::IDENTITY, 0.1, render_item.color);
+       // gizmos.sphere(render_item.position, Quat::IDENTITY, 0.1, render_item.color);
     }
     render_items.items.clear();
 }
