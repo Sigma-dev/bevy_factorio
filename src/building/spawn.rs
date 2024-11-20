@@ -58,7 +58,7 @@ fn try_place_conveyor_belt(
         ExternalItemStorage::new(vec![Item { filepath: "".to_string() }]),
         InternalItemStorage::new(vec![]),
         ItemTaker::new(orientation.flipped()),
-        ConveyorBelt::new(orientation)
+        ConveyorBelt::new(orientation, 1., 0.4)
     )).id();
     world_grid.grid.insert_shape(&square, entity);
 }

@@ -32,7 +32,6 @@ fn setup(
     commands.spawn(Camera3dBundle {
         transform: Transform::from_xyz(0., 5., 0.).looking_at(Vec3::ZERO, -Vec3::Z),
         projection: OrthographicProjection {
-            // 6 world units per window height.
             scaling_mode: ScalingMode::FixedVertical(8.),
             ..default()
         }
@@ -108,23 +107,6 @@ fn try_place(
     )).id();
     world_grid.grid.insert_shape(&square, entity);
     return Some(entity);
-}
-
-fn try_place_conveyor_belt(
-    commands: &mut Commands,
-    assets: &Res<AssetServer>,
-    grid_position: IVec2,
-    direction: CardinalDirection,
-    world_grid: &mut WorldChunkedGrid,
-) -> Option<Entity> {
-    println!("Direction: {:?}", direction);
-    let entity = try_place(commands, assets, grid_position, direction, world_grid, "models/buildings/conveyor_belt/conveyor_belt.glb#Scene0", 1)?;
-    commands.get_entity(entity).unwrap().insert((
-        InternalItemStorage::new(vec![]),
-        ItemTaker::new(direction.flipped()),
-        ConveyorBelt::new(direction)
-    ));
-    Some(entity)
 }
 
 fn try_place_generator(

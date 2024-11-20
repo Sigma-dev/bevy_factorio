@@ -73,7 +73,7 @@ pub struct ItemTaker {
 
 impl ItemTaker {
     pub fn new(source_direction: CardinalDirection) -> ItemTaker {
-        ItemTaker { source_storage: None, source_direction, }
+        ItemTaker { source_storage: None, source_direction }
     }
 }
 
@@ -115,6 +115,7 @@ fn update_takers(
     mut storage_query: Query<&mut ExternalItemStorage>
 ) {
     for (mut taker, mut taker_storage) in taker_query.iter_mut() {
+        if !taker_storage.can_add() { continue; }
         let Some(storage) = taker.source_storage else { continue; };
         let Ok(mut storage) = storage_query.get_mut(storage) else { continue; };
         let Some(item) = storage.try_remove_any() else { continue; };

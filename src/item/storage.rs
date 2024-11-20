@@ -13,7 +13,8 @@ pub struct ExternalItemStorage {
 
 #[derive(Component, Default)]
 pub struct InternalItemStorage {
-    items: VecDeque<Item>
+    items: VecDeque<Item>,
+    block_input: bool,
 }
 
 #[derive(Event)]
@@ -41,19 +42,30 @@ impl ExternalItemStorage {
 
 impl InternalItemStorage {
     pub fn new(items: Vec<Item>) -> InternalItemStorage {
-        InternalItemStorage { items: items.into() }
+        InternalItemStorage { items: items.into(), block_input: false }
     }
 
     pub fn try_remove_any(&mut self) -> Option<Item> {
         self.items.pop_front()
     }
 
+    pub fn can_add(&self) -> bool {
+        !self.block_input
+    }
+
     pub fn add(&mut self, item: Item) {
+        if !self.can_add() {
+            panic!("Can't add but adding");
+        }
         self.items.push_back(item);
     }
 
     pub fn get(&self) -> Vec<Item> {
         return self.items.clone().into();
+    }
+
+    pub fn set_input_block(&mut self, block_input: bool) {
+        self.block_input = block_input
     }
 }
 
